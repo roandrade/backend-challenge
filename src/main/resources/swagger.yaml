@@ -1,0 +1,342 @@
+swagger: "2.0"
+info:
+  description: "This is a interface responsible for deal with store, orders and payments"
+  version: "1.0.0"
+  title: "Invillia Store"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "roandrad@hotmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/v1"
+tags:
+- name: "Store"
+  description: "Everything about stores"
+- name: "Order"
+  description: "Creation and refund of orders with its items"
+- name: "Payment"
+  description: "Payment of an order"
+schemes:
+- "https"
+- "http"
+paths:
+  /stores:
+    get:
+      tags: 
+      - Store
+      summary: Retrive the orders based on its parameters
+      consumes: 
+      - application/json
+      produces: 
+      - application/json
+      operationId: findStores
+      parameters: 
+      - in: query
+        name: name
+        type: string
+      - in: query
+        name: neighborhood
+        type: string
+      - in: query
+        name: city
+        type: string
+      - in: query
+        name: state
+        type: string
+        minLength: 2
+        maxLength: 2
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Store'
+        500:
+          description: Internal error
+          schema:
+            $ref: '#/definitions/Message'
+    post:
+      tags:
+      - Store
+      summary: Saves an order in database
+      consumes: 
+      - application/json
+      produces: 
+      - application/json
+      operationId: saveStore
+      parameters: 
+      - in: body
+        name: store
+        required: true
+        schema:
+          $ref: '#/definitions/Store'
+      responses:
+        201:
+          description: Created
+        422:
+          description: Unprocessable entity
+          schema:
+            $ref: '#/definitions/Message'
+        500:
+          description: Internal error
+          schema:
+            $ref: '#/definitions/Message'
+    put:
+      tags:
+      - Store
+      summary: Updates the store's data
+      consumes: 
+      - application/json
+      produces: 
+      - application/json
+      operationId: updateStore
+      parameters: 
+      - in: body
+        name: store
+        required: true
+        schema:
+          $ref: '#/definitions/Store'      
+      responses:
+        200:
+          description: OK
+        422:
+          description: Unprocessable entity
+          schema:
+            $ref: '#/definitions/Message'
+        500:
+          description: Internal error
+          schema:
+            $ref: '#/definitions/Message'
+  /orders:
+    post:
+      tags: 
+      - Order
+      summary: Creates an order 
+      consumes: 
+      - applicaiton/json
+      produces:
+      - applicaiton/json
+      operationId: saveOrder
+      parameters: 
+      - in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/Order'
+      responses:
+        201:
+          description: Created
+        422:
+          description: Unprocessable entity
+          schema:
+            $ref: '#/definitions/Message'
+        500:
+          description: Internal error
+          schema:
+            $ref: '#/definitions/Message'
+    get:
+      tags:
+      - Order
+      summary: Retrives the orders by parameters 
+      consumes: 
+      - application/json
+      produces: 
+      - application/json
+      operationId: findOrders
+      parameters: 
+      - in: query
+        name: neighborhood
+        type: string
+      - in: query
+        name: city
+        type: string
+      - in: query
+        name: state
+        type: string
+        minLength: 2
+        maxLength: 2
+      - in: query
+        name: confirmationDate
+        type: string
+        format: date
+      - in: query
+        name: status
+        type: string
+      - in: query
+        name: itemDescription
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Order'
+        500:
+          description: Internal error
+          schema:
+            $ref: '#/definitions/Message'
+  /orders/refunds/{idOrder}:
+    put:
+      tags: 
+      - Order
+      summary: Makes the refund for some order
+      operationId: doOrderRefund
+      consumes: 
+      - application/json
+      produces: 
+      - application/json
+      parameters: 
+      - in: path
+        name: idOrder
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: OK
+        500:
+          description: Internal error!
+          schema:
+            $ref: '#/definitions/Message'
+  /orders/items/refunds/{idOrderItem}:
+    put:
+      tags: 
+      - Order
+      summary: Makes the refund of the Order item
+      produces: 
+      - application/json
+      operationId: doOrderItemRefund
+      parameters: 
+      - in: path
+        name: idOrderItem
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: OK
+        500:
+          description: Internal error
+  /payments:
+    post:
+      tags: 
+      - Payment
+      summary: Creates a payment
+      consumes: 
+      - application/json
+      produces: 
+      - application/json
+      operationId: savePayment
+      parameters: 
+      - in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/Payment'
+      responses:
+        201:
+          description: Created
+        422:
+          description: Unprocessable entity
+          schema:
+            $ref: '#/definitions/Message'
+        500:
+          description: Internal error
+definitions:
+  Store:
+    type: object
+    required: 
+    - name
+    - adress
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+      address:
+        $ref: '#/definitions/Adress'
+  Adress:
+    type: object
+    required: 
+    - street
+    - number
+    - neighborhood
+    - city
+    - state
+    properties:
+      street:
+        type: string
+      number:
+        type: integer
+        minimum: 0
+      complement:
+        type: string
+      neighborhood:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+        minLength: 2
+        maxLength: 2
+  Order:
+    type: object
+    required: 
+    - address
+    - confirmationDate
+    - status
+    properties:
+      id:
+        type: integer
+        format: int64
+      address:
+        $ref: '#/definitions/Adress'
+      confirmationDate:
+        type: string
+        format: date
+      status:
+        type: string
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/OrderItem'
+        minItems: 1
+  OrderItem:
+    type: object
+    required: 
+    - description
+    - unitPrice
+    - quantity
+    properties:
+      id:
+        type: integer
+        format: int64
+      description:
+        type: string
+      unitPrice:
+        type: number
+        format: currency
+      quantity:
+        type: integer
+        minimum: 1
+  Message:
+    type: object
+    properties:
+      message:
+        type: string
+  Payment:
+    type: object
+    properties:
+      status:
+        type: string
+      creditCardNumber:
+        type: string
+      paymentDate:
+        type: string
+        format: date
+      order:
+        $ref: '#/definitions/Order'
