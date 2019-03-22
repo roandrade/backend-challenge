@@ -1,8 +1,10 @@
 package com.invillia.acme.security;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserDetailsImpl implements UserDetails{
@@ -15,6 +17,7 @@ public class UserDetailsImpl implements UserDetails{
 	private String username;
 	private String password;
 	private Boolean enabled = true;
+	private Set<SimpleGrantedAuthority> authorities;
 	
 	public String getUsername() {
 		return username;
@@ -28,9 +31,14 @@ public class UserDetailsImpl implements UserDetails{
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		return authorities;
+	}
+	
+	public void setAuthorities(Set<SimpleGrantedAuthority> authorities) {
+		this.authorities = authorities;
 	}
 		
 	@Override
