@@ -1,48 +1,93 @@
 package com.invillia.acme.services.impl;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.invillia.acme.services.CrudService;
 
-public abstract class CrudServiceImpl<T> implements CrudService<T> {
-	
-	protected abstract JpaRepository<T, Long> getRepository();
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.converter.builtin.PassThroughConverter;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 
-	@Override
-	public List<T> findAll() {		
-		return this.getRepository().findAll();
-	}
+public abstract class CrudServiceImpl<E, M> implements CrudService<E, M> {
 	
-	@Override
-	public List<T> findByExample(T entity) {
-		Example<T> example = Example.of(entity);
-		return this.getRepository().findAll(example);
-	}
+	protected abstract JpaRepository<E, Long> getRepository();
 	
-	@Override
-	public T findOne(Long id) {
-		return this.getRepository().findById(id).orElse(null);
+	private Class<E> entityClass;
+	private Class<M> modelClass;
+	
+	public CrudServiceImpl(Class<E> entity, Class<M> model) {		
+		this.entityClass = entity;
+		this.modelClass = model;
 	}
 
 	@Override
-	public T save(T entity) {
-		return this.getRepository().save(entity);
+	public List<M> findAll() {		
+		return this.convertListEntityToListModel(this.getRepository().findAll());
+	}
+	
+	@Override
+	public List<M> findByExample(M model) {
+		Example<E> example = Example.of(this.convertModelToEntity(model));
+		return this.convertListEntityToListModel(this.getRepository().findAll(example));
+	}
+	
+	@Override
+	public M findOne(Long id) {
+		return this.convertEntityToModel(this.getRepository().findById(id).orElse(null));
 	}
 
 	@Override
-	public T update(T entity) {
-		return this.update(entity);
+	public M save(M model) {
+		return this.convertEntityToModel(this.getRepository().save(this.convertModelToEntity(model)));
+	}
+
+	@Override
+	public M update(M model) {
+		return this.convertEntityToModel(this.getRepository().save(this.convertModelToEntity(model)));
 	}
 
 	@Override
 	public void delete(Long id) {
-		T entity = this.findOne(id);
+		E entity = getRepository().findById(id).get();
 		this.getRepository().delete(entity);
+	}	
+	
+	protected List<M> convertListEntityToListModel(List<E> list){
+		return list.stream().map(entity -> this.convertEntityToModel(entity)).collect(Collectors.toList());
 	}
 	
+	protected List<E> convertListModelToListEntity(List<M> list){
+		return list.stream().map(model -> this.convertModelToEntity(model)).collect(Collectors.toList());
+	}
 	
+	protected M convertEntityToModel(E entity) {
+		if(entity != null) {
+			MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+			mapperFactory.getConverterFactory().registerConverter(new PassThroughConverter(LocalDate.class));
+			mapperFactory.classMap(entity.getClass(), modelClass);
+			MapperFacade mapper = mapperFactory.getMapperFacade();		
+			return mapper.map(entity, modelClass);
+		} else {
+			return null;
+		}
+	}
+	
+	protected E convertModelToEntity (M model) {
+		if(model != null) {
+			MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+			mapperFactory.getConverterFactory().registerConverter(new PassThroughConverter(LocalDate.class));
+			mapperFactory.classMap(model.getClass(), entityClass);
+			MapperFacade mapper = mapperFactory.getMapperFacade();		
+			return mapper.map(model, entityClass);
+		} else {
+			return null;
+		}
+	}
 
 }

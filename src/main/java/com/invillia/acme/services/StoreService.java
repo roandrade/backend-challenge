@@ -1,7 +1,12 @@
 package com.invillia.acme.services;
 
-import com.invillia.acme.models.Store;
+import java.util.List;
 
-public interface StoreService extends CrudService<Store>{
+import com.invillia.acme.models.Store;
+import com.invillia.models.StoreTO;
+
+public interface StoreService extends CrudService<Store, StoreTO>{
+	
+	List<StoreTO> findByParameters(String name, String neighborhood, String city, String state);
 
 }

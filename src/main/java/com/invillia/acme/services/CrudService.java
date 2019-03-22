@@ -2,17 +2,17 @@ package com.invillia.acme.services;
 
 import java.util.List;
 
-public interface CrudService<T> {
+public interface CrudService<E, M> {
 	
-	List<T> findAll();
+	List<M> findAll();
 	
-	List<T> findByExample(T entity);
+	List<M> findByExample(M model);
 	
-	T findOne(Long id);
+	M findOne(Long id);
 	
-	T save(T entity);
+	M save(M model);
 	
-	T update(T entity);
+	M update(M model);
 	
 	void delete(Long id);
 	

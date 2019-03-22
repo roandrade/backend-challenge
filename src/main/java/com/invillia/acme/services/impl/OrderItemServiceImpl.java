@@ -7,10 +7,15 @@ import org.springframework.stereotype.Service;
 import com.invillia.acme.models.OrderItem;
 import com.invillia.acme.repositories.OrderItemRepository;
 import com.invillia.acme.services.OrderItemService;
+import com.invillia.models.OrderItemTO;
 
 @Service
-public class OrderItemServiceImpl extends CrudServiceImpl<OrderItem> implements OrderItemService {
+public class OrderItemServiceImpl extends CrudServiceImpl<OrderItem, OrderItemTO> implements OrderItemService {
 	
+	public OrderItemServiceImpl() {
+		super(OrderItem.class, OrderItemTO.class);
+	}
+
 	@Autowired
 	private OrderItemRepository repository;
 
