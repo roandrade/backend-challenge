@@ -1,0 +1,1 @@
+insert into tb_user (username, password, active) values('user','123456', true);
