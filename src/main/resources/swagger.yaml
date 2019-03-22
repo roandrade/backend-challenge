@@ -52,11 +52,11 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Store'
+              $ref: '#/definitions/StoreTO'
         500:
           description: Internal error
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
     post:
       tags:
       - Store
@@ -71,18 +71,19 @@ paths:
         name: store
         required: true
         schema:
-          $ref: '#/definitions/Store'
+          $ref: '#/definitions/StoreTO'
       responses:
         201:
           description: Created
         422:
           description: Unprocessable entity
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
         500:
           description: Internal error
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
+  /stores/{id}:
     put:
       tags:
       - Store
@@ -92,50 +93,55 @@ paths:
       produces: 
       - application/json
       operationId: updateStore
-      parameters: 
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        format: int64
       - in: body
         name: store
         required: true
         schema:
-          $ref: '#/definitions/Store'      
+          $ref: '#/definitions/StoreTO'      
       responses:
         200:
           description: OK
         422:
           description: Unprocessable entity
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
         500:
           description: Internal error
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
   /orders:
     post:
       tags: 
       - Order
       summary: Creates an order 
       consumes: 
-      - applicaiton/json
+      - application/json
       produces:
-      - applicaiton/json
+      - application/json
       operationId: saveOrder
       parameters: 
       - in: body
         name: order
         required: true
         schema:
-          $ref: '#/definitions/Order'
+          $ref: '#/definitions/OrderTO'
       responses:
         201:
           description: Created
         422:
           description: Unprocessable entity
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
         500:
           description: Internal error
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
     get:
       tags:
       - Order
@@ -173,12 +179,12 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Order'
+              $ref: '#/definitions/OrderTO'
         500:
           description: Internal error
           schema:
-            $ref: '#/definitions/Message'
-  /orders/refunds/{idOrder}:
+            $ref: '#/definitions/MessageTO'
+  /orders/refunds/{id}:
     put:
       tags: 
       - Order
@@ -190,7 +196,7 @@ paths:
       - application/json
       parameters: 
       - in: path
-        name: idOrder
+        name: id
         required: true
         type: integer
         format: int64
@@ -200,8 +206,8 @@ paths:
         500:
           description: Internal error!
           schema:
-            $ref: '#/definitions/Message'
-  /orders/items/refunds/{idOrderItem}:
+            $ref: '#/definitions/MessageTO'
+  /orders/items/refunds/{id}:
     put:
       tags: 
       - Order
@@ -211,7 +217,7 @@ paths:
       operationId: doOrderItemRefund
       parameters: 
       - in: path
-        name: idOrderItem
+        name: id
         required: true
         type: integer
         format: int64
@@ -235,22 +241,22 @@ paths:
         name: payment
         required: true
         schema:
-          $ref: '#/definitions/Payment'
+          $ref: '#/definitions/PaymentTO'
       responses:
         201:
           description: Created
         422:
           description: Unprocessable entity
           schema:
-            $ref: '#/definitions/Message'
+            $ref: '#/definitions/MessageTO'
         500:
           description: Internal error
 definitions:
-  Store:
+  StoreTO:
     type: object
     required: 
     - name
-    - adress
+    - address
     properties:
       id:
         type: integer
@@ -258,8 +264,8 @@ definitions:
       name:
         type: string
       address:
-        $ref: '#/definitions/Adress'
-  Adress:
+        $ref: '#/definitions/AddressTO'
+  AddressTO:
     type: object
     required: 
     - street
@@ -283,7 +289,7 @@ definitions:
         type: string
         minLength: 2
         maxLength: 2
-  Order:
+  OrderTO:
     type: object
     required: 
     - address
@@ -294,7 +300,7 @@ definitions:
         type: integer
         format: int64
       address:
-        $ref: '#/definitions/Adress'
+        $ref: '#/definitions/AddressTO'
       confirmationDate:
         type: string
         format: date
@@ -303,9 +309,9 @@ definitions:
       items:
         type: array
         items:
-          $ref: '#/definitions/OrderItem'
+          $ref: '#/definitions/OrderItemTO'
         minItems: 1
-  OrderItem:
+  OrderItemTO:
     type: object
     required: 
     - description
@@ -323,12 +329,12 @@ definitions:
       quantity:
         type: integer
         minimum: 1
-  Message:
+  MessageTO:
     type: object
     properties:
       message:
         type: string
-  Payment:
+  PaymentTO:
     type: object
     properties:
       status:
@@ -339,4 +345,4 @@ definitions:
         type: string
         format: date
       order:
-        $ref: '#/definitions/Order'
+        $ref: '#/definitions/OrderTO'
